@@ -1,0 +1,838 @@
+Video 2 Deploy Backend Code in Production.
+Express is a package that handle's the request part of the the connection between computer and server.
+
+Here we listen to the request using routes /, /login. 
+There are various request such as get, put , post , delete.
+
+Creating empty node application:
+(1)Initialise node package manager by typing "npm init" inside the terminal 
+It creates a file called package.json with necessary information.
+
+(2)Create new file which is main in package.json 
+{ main: index.js }
+
+(3)Create a script command for running or executing the file.
+{ "scripts": { "start" : "node index.js" }} 
+
+(4)Now we can execute the file using 
+npm run start
+
+(5)Now install Express package using "npm i express"
+
+(6)Import express using " import express from "express" " and asign it to a variable.
+const app = express()
+
+(7)Deploying the application 
+(a)Install package "dotenv" "npm i dotenv"
+(b)Create a new file called ".env"
+(c)Add your relevant data into it.
+PORT=4000 
+(d)Inside your application import {configDotenv} from "dotenv" and pass the path inside it.
+(e)configDotenv({path: "././env"})
+(f)Replace the port with process.env.PORT
+
+For deployment first create a repo on Github and then deploy it.
+
+
+
+
+
+Video 3 How to Connect Frontend with Backend.
+(1)Create two folder called "Backend" "Frontend" //
+(2)Initialise node package manage inside the Backend folder by using "npm init" //
+(3)Add express package using npm "npm i express" //
+(4)Create a file with the same name as your "main:" which is in your package.json.//
+(5)Add a start script inside package.json "start": "node FileName.js"//
+(6)Add "type": "module" inside package.json for using latest ES6 syntax for importing and exporting files.//
+(7)import express and asign it to a variable and create a get route.//
+(8)Add port inside .env and while assigning it use process.env.PORT || 3000 this way there will be no issue during production.//
+(9)Add a route for passing data. //
+While creating a route for API in backend always give "/api/" before the route. //
+(9)Frontend 
+(10)Inside directory cd to Frontend folder and type "npm create vite@latest .  " dont forget to add " . " so that all the file's are created inside frontend folder and no new directory is created.//
+(11)After that type "npm i"//
+(12)check script in package.json to run the file.//
+(13)install axios for API handling "npm i axios".//
+(14)Search how we use axios using promise .then //
+(14)CORS POLICY 
+📝 CORS & Proxy in Vite – Summary
+-CORS (Cross-Origin Resource Sharing) is a browser security rule that blocks requests from one origin (like localhost:5173) to another (like localhost:3000) unless allowed.
+
+-When frontend (Vite) tries to fetch data from backend (Express) on a different port, it triggers a CORS error.
+
+-To bypass this in development, Vite lets us use a proxy.
+
+-Vite acts as a middleman — when we call /api/... from the frontend, Vite secretly forwards it to http://localhost:3000/api/....
+
+-This avoids CORS because the browser sees it as coming from the same origin.
+
+(15)While creating proxy in vite. Go to vite.config.js file. Search why do we need proxy. 
+(16)Inside defineConfig add a new object called server:{}. Inside server create a object called proxy : {}
+(17)Pass in proxy : {'/api': 'http://localhost:3000'}
+
+
+MiddleWare 
+When we use app.use() we are basically using a MiddleWare.
+
+
+
+
+
+
+Video 4 Data modelling for backend with Moongoose
+Data modelling - Defining the structure of the data.
+Following can be used for Data modelling
+-Moon modeler //paid  
+-Eraser.io 
+
+(1)Before building any kind of project always know what kind of data points will be needed for the data.
+(2)Install mongoose using "npm i mongoose" inside -stackblitz //
+-mongoose is a library that helps you interact with mongoDb database
+(3)Create a new folder called models. Inside the same folder create a new folder called todos.//
+(4)Inside todos create a file called "user.models.js" always use .models.js while creating files in this folder. It basically means it denotes model.//
+(5)Also do the same for todos and sub_todos//
+(6)import mongoose from "mongoose"//
+(7)Use "new" while creating schema in mongoose.
+new mongoose.Schema()//
+(8)This function takes an object.//
+const userSchema = new mongoose.Schema({})//
+(9)Then export const User = mongoose.model() //this takes two parameter (name of the model, on basis of whose schema should i make the model)//
+(10)export const User = mongoose.model("User", userSchema)//
+(11)In mongoDB "User" get's converted into LowerCase and plural form. "User" = users //
+(12)Inside mongoose.Schema({ 
+    username:{
+                type:String, 
+                required:true, //this field is always required  
+                unique:true,   //it should be unique 
+                lowercase:true,
+            },
+    password:{
+        type:String,
+        require:[true, "password is required"] //we can pass custom messages by passing them inside an array.
+    } 
+        }
+    ) 
+(13)We can pass timestamps to add createdAt and updatedAt 
+(14)Pass them inside mongoose.Schema({}, {timestamps:true}) //its timestamp's not timestamp 
+(15)new mongoose.Schema({
+    complete:{
+        type:Boolean,
+        default:false
+    }
+})//
+(16)Creating relation's between two schemas.
+We need two things type and reference. 
+new mongoose.Schema({
+    createdBy:{
+        type: mongoose.Schema.Types.ObjectId, //this tells mongoose that we are going to give them some kind of reference.
+        ref: "User", //the name that we give when creating model should be passed here always.
+    }
+})
+(17)We can add array of sub_todos
+new mongoose.Schema({
+    sub_todos:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"SubTodo",
+    }]
+})//
+(18)Create schema for sub_todos that includes content, complete, createdBy.//
+
+
+
+
+
+
+
+
+Video 5 E-commerce or Hospital Data modelling.
+(1)Create a new folder for e-commerce.
+(2)Create schema for user, categories , product.
+(3)Before creating schemas think what field's are dependent on each other. 
+(4)Buffer - images , pdf.
+(5)user = name, email , password , categories = name , product = name, price, stock, description , category, owner, productImage.
+(6)Creating miniModels.
+orderItemSchema
+{
+    productId:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Product",
+    },
+    quantity:{
+        type:Number,
+        required:true,
+    }
+}
+
+orders 
+{
+    orderItems:{
+        type:[orderItemSchema]
+    }
+}
+(7)Adding choices or enumerations (enum)
+{
+    status:{
+        type:String,
+        enum:["PENDING", "CANCELLED", "DELIVERED"],
+        default: "PENDING",
+    }
+}
+(8)Hospital
+
+
+
+
+
+
+
+
+
+Video 6 How to setup Professional Backend Project.
+(1)create a new folder and add package.json file inside it.//
+(2)Create a Readme.md //
+(3)Push files inside github 
+(a)git init 
+(b)git add . 
+(c)git commit -m "start add intial files"
+(d)git branch -M main 
+(e)copy rest of the two codes from github "make sure you have set it as upstream"
+(f)when we add new files repeat steps b,c and type "git push"
+-we can only use git push because we have setup upstream.
+
+(1)create a new folder public and inside this folder create a folder called "temp".//
+
+(2)create a empty file .gitkeep inside "temp" //
+-this way we can keep track of empty folders inside github. If we don't add ".gitkeep" github will not track empty folders.
+
+(3)create a file called ".gitignore" inside root or outside of "public"//  
+-you can add file names by copying them from .gitignore generators for your use.
+
+(4)create a file called .env //
+
+(5)create a new file inside root ie outside of public . File name should be "src" //
+
+(6)create the following files inside "src"//
+-app.js 
+-constants.js 
+-index.js 
+
+(7)install nodemon using "npm i -D nodemon"//
+-the reason we are using -D "dev dependency" is because we only want this package or dependency in our development not in production. 
+
+(8)Inside package.json add a script {"dev" : nodemon src/index.js}//
+-here we are telling to reload file index.js when we run "npm run dev"
+
+(9)create the following folders inside src //
+-controllers (for functionality)
+-db (connection logic)
+-middlewares (acts between request and server.)
+-models (db models)
+-routes (server routes)
+-utils (utilities)
+
+(10)install package "npm i -D prettier"
+
+(11)create a new file inside root called ".prettierrc"
+-it keeps all the configuration of prettier 
+-inside the above file create an object 
+{
+    "singleQuote":false, //we will only have double quotes inside our files 
+    "bracketSpacing":true, //there will be spacing ( ) when we create a bracket 
+    "tabWidth":2,
+    "semi":true, 
+    "trailingComma":"es5",
+}
+
+(12)create a new file called ".prettierignore"
+-this will tell the files where we have to ignore .prettier 
+-add the following inside the file 
+*.env 
+ .env 
+ .env.*
+
+/.vscode
+/node_modules 
+./dist 
+
+
+
+
+
+
+
+
+
+Video 7 How to Connect Db in MERN with Debugging.
+-different ways to connect db 
+-problems or issued faced during it 
+
+(1)go to mongoDB atlas 
+-it is a subservice of mongoDB where they give online service of mongoDB
+
+(2)sign in and create a new project called youtube //
+
+(3)click on "create a deployment"//
+-add authentication to access db 
+-allow ip address to access db 
+
+(4)select local environment and inside select ip list add 
+-0.0.0.0/0 
+-click on add entry 
+
+(5)Inside security go to network access 
+ -db access 
+    -select "read and write any db" for built in role
+
+(6)Go to database 
+ - select connect 
+ - select compass 
+ - copy URL 
+//mongodb+srv://govindarsharma26:Govinda@26@cluster0.ghtzkvw.mongodb.net/
+
+
+(7)Go to .env and add the below items //
+-PORT=3000
+-MONGODB_URI=//paste the url from step 6 and add the password , remove ending slash  
+
+(8)Go to constants.js and add db name //
+-export const DB_NAME = "videotube"
+
+(9)"npm i mongoose express dotenv"
+
+(10)When dealing with db always use try and catch and async await 
+
+(11)import mongoose from mongoose 
+
+(A)First approach
+
+(1)create a async ife function and inside add a try and catch block 
+-inside try block - mongoose.connect('url/dbName')
+
+(2)Add a listener after the above 
+-app.on("error", () => {
+    console.log("error",err);
+    throw err   
+    })
+
+(3)Search what throw means 
+
+(4)after app.on create an app.listen 
+-app.listen(process.env.port, () => {
+    console.log("App is running on port: ", process.env.port)
+})
+
+(B)Second approach 
+In this approach we write the function to call db in other file and export it and then call it inside our index file.
+
+(1)Create a new file inside db folder //
+-name it anything eg db.js 
+
+(2)Import the following inside db.js
+-import mongoose from mongoose 
+-import dbName from constants 
+
+
+(3)create an async function //
+
+(4)Inside try and catch block write the following// 
+-
+try{
+    const connectionInstance = await mongoose.connect('url/dbname');
+    console.log(connectionInstance.connection.host)    //add this to check that you are connected to right server (production,development,..) 
+}catch(error){
+    console.log(error);
+    process.exit(1)     //search what is the meaning of this 
+}
+
+(6)export default the above function //
+
+(7)inside index.js file //
+-import dotenv from "dotenv" 
+-dotenv.config({path:"environment variable path"})
+
+(8)inside package.json inside dev script add the following 
+-"dev": "nodemon -r dotenv/config--experimental-json-modules src/index.js"
+
+(9)call the function 
+
+(10)Anytime you make any changes into environment variable you have to restart your server.
+
+Assignment 
+-check what is inside connectionInstance object 
+
+
+
+
+
+
+
+Video 8 Custom API response and error handling 
+(1)Inside app.js import express from "express"//
+
+(2)asign express() to a variable app and export it //
+const app = express()
+export {app} 
+
+(3)inside index.js add .then and .catch on connectDb()
+connectDb()
+.then(() => app.listen(process.env.PORT, () => console.log(`SERVER RUNNING ON PORT: ${process.env.PORT}`)));
+.catch((error) => console.log("Mongo db connection failed: ", error));
+
+(4)Whenever we want to run a MiddleWare we use app.use()
+
+(5)Install the following packages//
+-npm i cookie-parser cors 
+
+(6)Import the above packages inside app.js// 
+import cookieParser from "cookie-parser"
+import cors from "cors"
+
+(7)Initialise cors and give it a origin by mentioning it in .env //
+app.use(cors({
+    origin:process.env.CORS_ORIGIN //in .env for now do CORS_ORIGIN=* this is because when we deploy we will add origin from vercel 
+    credentials:true
+}))
+
+(8)allow server to recieve json by adding express.json() as a MiddleWare //
+-app.use(express.json({limit: "16kb"}))
+
+(9)allow server to access data from url // 
+-app.use(express.urlencoded({extended:true, limit:"16kb"}))
+
+(10)allow server to store images and pdfs etc // 
+-app.use(express.static("public")) //here public is the folder name that we have created before 
+
+(11)allow server to perform CRUD on cookies stored on users browser //
+-app.use(cookieParser())
+
+(12)Creating utility for handling async await and try catch 
+(A)inside utility folder create a new file called "asyncHandler.js"
+(B)Creata a function called asyncHandler and export it 
+(C)inside asyncHandler 
+const asyncHandler = (requestHandler) => {
+    return (req,res,next) => {
+        Promise.resolve(requestHandler(req,res,next)).catch((err)=>next(err))
+    }
+}
+
+We can also the above using try and catch 
+const asyncHandler = (func) => async (req,res,next) => {
+    try{
+        await func(req,res,next)
+    }catch(error){
+        res.status(error.code || 500).json({
+            sucess: false,
+            message: error.message
+        })
+    }
+}
+
+(13)Creating a API error handling.
+(A)Create a new file inside utils called ApiError.js 
+(B)Create a new class which extends Error
+-class ApiError extends Error{}
+(C)Inside the constructor of the class write the following 
+constructor(
+    statusCode,
+    message="Something went wrong",
+    errors = [],
+    stack = "", 
+){
+    super(message)
+    this.statusCode = statusCode
+    this.data = null
+    this.message = message 
+    this.success = false,
+    this.errors = errors 
+
+    if(stack){
+        this.stack = stack
+    }else {
+        Error.captureStackTrace(this, this.constructor)
+    }
+}
+(D)export the above class //
+
+(14)Creating an API response program //
+(A)Create a new file inside utils called ApiResponse.js 
+(B)Create a new class 
+-class ApiResponse 
+(C)Inside the constructor of the class write the following 
+constructor(
+    statusCode,
+    data,
+    message = "Success",
+){
+    this.statusCode = statusCode
+    this.data = data
+    this.message = message 
+    this.success = statusCode < 400
+}
+(D)export the above class// 
+
+
+
+
+
+
+
+
+
+Video 9 User and video Model with hooks and JWT 
+(1)Create the following files inside the models folder //
+user.model.js 
+video.model.js 
+(2)Create user schema using reference from model link from chai aur code github page 
+
+userSchema //
+(A)Search what is trim = true and pass it into username   //trim is used to remove whitespace
+(B)Pass index = true 
+-this is used to make it more searchable inside the db 
+-donot make every field have index = true this takes a huge toll on performance
+(C)Give custom message on every required = true field //
+(D)Add timestamps //
+
+videoSchema //
+-Most of it is just two fields 
+
+(3)Install the following aggregration package //
+npm i mongoose-aggregate-paginate-v2
+
+(4)Import the above package inside video.model.js //
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2"
+
+(5)Add the below line before export Video //
+-plugins are basically type of middleWare that tells mongoose to do something before performing any operation on the db 
+videoSchema.plugin(mongooseAggregatePaginate) 
+
+(6)Install the following packages //
+npm i bcrypt jsonwebtoken 
+
+(7)Import the above packages inside user.model.js //
+import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt"
+
+(8)Search what are pre hooks in mongoose //
+Pre hooks are like middleWare functions executed before a specific operation on a Mongoose document or query. 
+
+(9)Add .pre() on videoSchema just before export Video 
+videoSchema.pre()
+-it takes two parameters event and cb 
+-type of event - (save, validate, remove, updateOne, deleteOne)
+-for now we will take save 
+-do not write () => inside the cb because it does not have this therefore we use function ()
+-search what is "this"
+-cb function will be asyn and because it is a middleware it will require next paramter in cb 
+-after our work is done we will call this paramter to pass the flag 
+
+(10)userSchema.pre("save", function(){ //
+    
+})
+
+(11)select password field using this and encrypt it //
+userSchema.pre("save", function(){
+  this.password = bcrypt.hash(this.password, 10) //it takes two paramater 1-what you want to encrypt 2-how many salt rounds
+  next()   
+})
+
+(12)Inorder to not encrypt our password on every save we will use this.isModified() it takes field name as parameter //
+-this.isModified("password") //it is passed in string 
+
+(13)//
+-if this field is not modified then return next()
+
+(14)Creating custom events //
+-userSchema has a object called method 
+userSchema.method.methodName 
+
+userSchema.methods.isPasswordCorrect = async function (password) {return await bcrypt.compare(password, this.password)}
+
+-here .compare returns boolean (true or false)
+
+(15)JWT 
+(A)JWT is a bearer token 
+-Bearer = Whoever has this token will have the data 
+(B)Add the following items inside .env 
+ACCESS_TOKEN_SECRET=take a string and encrypt it with SHA256 //govinda
+ACCESS_TOKEN_EXPIRY=1d (1 day)
+REFRESH_TOKEN_SECRET=same as secret generate one with sha256 or any other algorithm //sharma 
+REFRESH_TOKEN_EXPIRY=10d 
+(C)Add .methods for the above 
+-userSchema.methods.generateAccessToken = function () {
+    return jwt.sign(    //it takes payload 
+        {
+            _id: this._id, //this is id from mongodb 
+            email: this.email,
+            username: this.username,
+            fullName : this.fullName
+            //payloadName : from where it will be accessed inside db 
+        }, 
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+            expiresIn: process.env.ACCESS_TOKEN_EXPIRY 
+        }
+    ) 
+}
+(D)
+--userSchema.methods.generateRefreshToken = function () {
+    //same as generateAccessToken just change the value name from env
+    it will only need id 
+}
+
+
+
+
+
+
+
+
+
+
+Video 10 How to upload file in Backend using Multer 
+When we need to upload file we have two  package's 
+1-express fileupload 
+2-Multer 
+
+We will use Multer 
+
+Workflow of file uploading 
+Upload file using multer --> store it on local device  --> upload it on cloudinary
+
+(1)Sign up on Cloudinary // 
+
+(2)install the following package's  //
+-npm i cloudinary 
+-npm i multer
+
+(3)Copy "Set up environment code" from cloudinary 
+
+(4)Create a file called "cloudinary.js" inside utils //
+
+(5)Import the following package's in the above file //
+-import {v2 as cloudinary} from "cloudinary"
+-import fs from "fs"
+
+(6)Paste the configuration copied from step 3 and paste it. Keep necessary info in .env //
+
+(7)Create an async function called uploadOnCloudinary which takes in a paramater called localFilePath //
+(A)Inside create a try catch block 
+(B)inside try write a condition which will return null if localFilePath is not correct 
+-if(!localFilePath) return null 
+(C)Now inorder to upload file on cloudinary create a variable called response 
+//upload file on cloudinary
+const response = await cloudinary.uploader.upload(localFilePath, {resource_type: "auto"}) 
+(D)After the file has been uploaded successfully console log it and return it 
+//file has been uploaded successfully 
+console.log("File has been uploaded Successfully", response.url)
+return response 
+(E)Inside the catch block do the following 
+-Inorder to remove file which is corrupted or malicious we will use fs.unlinkSync  
+-fs.unlinkSync(localFilePath) 
+-it basically removes the locally saved file as the upload operation got failed 
+-return null 
+(F)Export the above function 
+export {uploadOnCloudinary}
+
+(8)Create a new file inside middleware called "multer.middleware.js" and import it inside it //
+-import multer from "multer"
+
+(9)Copy code from DiskStorage section which is in multer github documentation //
+
+(10)Paste the above code inside "multer.middleware.js" and do the following changes //
+-Inside destination cb give the following file path 
+cb(null, "./public/temp") 
+
+-Inside filename add only the following 
+-cb(null, file.originalname)
+
+(11)Export the above 
+-export const upload = multer({storage})
+
+
+
+
+
+
+
+Video 11 HTTP Crash Course 
+
+Difference between HTTP and HTTPS 
+-When data is sent to HTTP for eg abc it will receive as "abc" 
+-When data is sent to HTTPS eg abc it will recieve {key: encrypted form of the data using XOR} 
+-It's functionality is same 
+
+Hyper Text Transfer Protocol 
+It basically deals with the tranfer of text 
+
+(A)HTTP Headers
+-They are metaData //key value sent along with request and response 
+-They are used in 
+caching , authentication, manage user state - guest , admin 
+-Different type's of Header's 
+Request Headers - Sent from Client 
+Response Headers - Sent from Server 
+Representation Headers - encoding / compression deals with zip files 
+Payload Data - data sent eg: name:"Govinda", gender:"Male" 
+
+Most common Header's 
+User agent - tell's from which browser request came (postman, safari, chrome)
+Authorization 
+Content type - image, pdf , video 
+Cookies 
+Cache Control 
+
+(B)HTTP Methods
+GET - retrieve a resource 
+HEAD - 
+OPTIONS - what operations are available 
+TRACE - 
+DELETE - remove a resource 
+PUT - replace a resource 
+POST - interact with a resource (mostly add)
+PATCH - change part of resource 
+
+(C)HTTP Status Code 
+1xx - Informational ()
+2xx - Success (Data you have sent has been received or your operation is completed)
+3xx - Redirection (Resource has been moved or removed, url has been removed or moved)
+4xx - Client Error (Client entered incorrect password, or token not sent, image resolution not correct)
+5xx - Server Error (Network broke, traffic in network)
+
+
+
+
+
+
+
+
+From this section we start writing actual code for functionality of our app 
+
+
+Video 12 Complete guide for router and controller with debugging 
+(1)Create a file called "user.controller.js" inside controller file and import asyncHandler //
+
+(2)Create a variable called registerUser and assign it the above function //
+
+(3)Inside the above function pass in the below paramter // 
+async (req, res) => {
+    res.status(200).json({message:"ok"})
+}
+
+(4)Export the above // 
+-export {registerUser}
+
+(5)Create a new file "user.routes.js" inside routes folder and import the following 
+-import {Router} from "express"
+
+(6)Assign Router() to a variable called router and export it 
+-const router = Router()
+-export default router 
+
+(7)Inside app.js add a comment called //routes import and import the following 
+-import userRouter from "./routes/user.route.js"
+
+(8)Write a new comment called //routes declaration and do the following 
+-Now because we have separated everything we will use middlewares instead of app.get 
+app.use("/users", userRouter)
+
+(9)go to user.routes.js and add the following before export 
+router.route("/register").post(registerUser)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Video 13 Logic Building / Register Controller 
+Before going through the below steps understand the code in the following file's and also code it to understand 
+1-index.js 
+2-asyncHandler
+3-ApiError
+
+Following are the steps to register a user in mongoDB
+
+(1)get user details from frontend (postman) in our case 
+-inside user.controller.js inside registerUser write the following 
+-inorder to take data we will use req.body and asign it to a variable and destructure it 
+const {fullName, username, email, password} = req.body;
+-open postman and go to the above route and send data by going to body -> raw -> selecting json  
+
+(2)validation - check if user has provided correct information ie not empty required field's 
+-import ApiError inside the above file 
+Option 1 
+-if(fullName === ""){
+    throw new ApiError(400, "fullname is required")
+}
+
+Option 2
+-search what .some and trim() does by writing it   
+if([fullName, email, username, password].some((field) => field?.trim() === "")){
+    throw new ApiError(400, "all fields are compulsary or required")
+}
+
+(3)check if user already exists: using username, email 
+-import {upload} from "../middlewares/multer.middleware.js" inside user.routes.js 
+-inside router.route write the below code 
+post(upload.fields([
+    {
+        name: "avatar",
+        maxCount: 1,
+    },
+    {
+        name: "coverImage",
+        maxCount: 1,
+    }
+]), registerUser)
+
+-import User from models inside user.controller.js 
+-write the below code inside the above file 
+-User.find({ $or:[{ email }, { username }] }) 
+-asign the above to a variable and add a condition that if it not exists then return an ApiError
+
+(4)check for images, check for avatar which is a required field 
+Because of middleware req. gets more fields 
+-inside the above file 
+-req.files?.fileName[0]?.path //in our case it is avatar
+-store the reference of above inside const avatarLocalPath 
+-do the same for coverImage
+-add ApiError if avatarLocalPath is not found 
+
+(5)upload them to cloudinary, avatar 
+-import uploadOnCloudinary inside the above file 
+-pass above path inside uploadOnCloudinary give it a reference and use await 
+-do the same for coverImage
+-add ApiError for if avatar reference is not available
+
+(6)create user object - create entry in db 
+-We will be using User which has a method called create which takes in a object 
+-User.create({
+    fullName,
+    avatar: avatar.url,
+    coverImage: coverImage?.url || "",
+    email: email,
+    password,
+    username: username.toLowerCase()
+})
+-save it inside an reference of user and use await 
+
+(7)remove password and refresh token field from response 
+refer step 8 
+
+(8)check for user creation 
+-you can use User.findById(user._id) and add reference and await  
+-.select("") we pass in a string and inside this string we mention what we don't need 
+User.findById(user._id).select("-password -refreshToken")
+-add api error for the above 
+
+(9)return res 
+-import ApiResponse into the above file 
+-write the below code 
+return res.status(201).json(new ApiResponse(200, createdUser, "User Registered Successfully"))
