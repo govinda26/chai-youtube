@@ -729,17 +729,29 @@ async (req, res) => {
 -export default router 
 
 (7)Inside app.js add a comment called //routes import and import the following 
--import userRouter from "./routes/user.route.js"
+-import userRouter from "./routes/user.route.js" //we can give any name we want when we exporting using "default"
 
 (8)Write a new comment called //routes declaration and do the following 
 -Now because we have separated everything we will use middlewares instead of app.get 
 app.use("/users", userRouter)
 
+-http://localhost:8000/users/ (preffix)
+-whenever user type's "/users" you will give control to userRouter (it will basically go to userRouter file)
+-in userRouter file now it will be routed to some other file
+
 (9)go to user.routes.js and add the following before export 
 router.route("/register").post(registerUser)
 
+-after comming to the above file we add the above to the preffix 
+-http://localhost:8000/users/register 
+
+eg-http://localhost:8000/users/login 
 
 
+complete sequence of the above 
+(1)user goes to /api/v1/users 
+(2)this will activate userRouter
+(3)inside userRouter "/register" will be added which will call the "registerUser" method 
 
 
 
@@ -753,9 +765,9 @@ router.route("/register").post(registerUser)
 
 Video 13 Logic Building / Register Controller 
 Before going through the below steps understand the code in the following file's and also code it to understand 
-1-index.js 
-2-asyncHandler
-3-ApiError
+1-index.js //
+2-asyncHandler //
+3-ApiError //
 
 Following are the steps to register a user in mongoDB
 
@@ -763,7 +775,7 @@ Following are the steps to register a user in mongoDB
 -inside user.controller.js inside registerUser write the following 
 -inorder to take data we will use req.body and asign it to a variable and destructure it 
 const {fullName, username, email, password} = req.body;
--open postman and go to the above route and send data by going to body -> raw -> selecting json  
+-open postman and go to the above route and send data by going to body -> raw -> selecting json //  
 
 (2)validation - check if user has provided correct information ie not empty required field's 
 -import ApiError inside the above file 
@@ -778,40 +790,57 @@ if([fullName, email, username, password].some((field) => field?.trim() === "")){
     throw new ApiError(400, "all fields are compulsary or required")
 }
 
-(3)check if user already exists: using username, email 
+//image upload middleware //
 -import {upload} from "../middlewares/multer.middleware.js" inside user.routes.js 
+
+(1)We will use middleware before registerUser so that before executing the controller we wil run the following 
 -inside router.route write the below code 
-post(upload.fields([
-    {
-        name: "avatar",
-        maxCount: 1,
-    },
-    {
-        name: "coverImage",
-        maxCount: 1,
-    }
+post(upload.fields([  //upload gives many options but for now we will use .fields . Fields only take "[]"
 ]), registerUser)
 
+(2)For adding fields we can mention name and maxCount inside an object 
+
+.post(
+  upload.fields([
+    {
+      name: "avatar",
+      maxCount: 1,
+    },
+    {
+      name: "coverImage",
+      maxCount: 1,
+    },
+  ]),
+  registerUser
+);
+
+(3)check if user already exists: using username, email //
 -import User from models inside user.controller.js 
--write the below code inside the above file 
--User.find({ $or:[{ email }, { username }] }) 
+
+-User.findOne({ $or:[{ email }, { username }] }) 
+//.findOne - returns the first user that it finds in the db 
+//we can use $ to add condition such as and , or 
+//inside $or pass in an object inside the array 
+$or: [{}]
+
 -asign the above to a variable and add a condition that if it not exists then return an ApiError
 
-(4)check for images, check for avatar which is a required field 
+(4)check for images, check for avatar which is a required field // 
 Because of middleware req. gets more fields 
 -inside the above file 
 -req.files?.fileName[0]?.path //in our case it is avatar
+
 -store the reference of above inside const avatarLocalPath 
 -do the same for coverImage
 -add ApiError if avatarLocalPath is not found 
 
-(5)upload them to cloudinary, avatar 
+(5)upload them to cloudinary, avatar //
 -import uploadOnCloudinary inside the above file 
 -pass above path inside uploadOnCloudinary give it a reference and use await 
 -do the same for coverImage
 -add ApiError for if avatar reference is not available
 
-(6)create user object - create entry in db 
+(6)create user object - create entry in db //
 -We will be using User which has a method called create which takes in a object 
 -User.create({
     fullName,
@@ -829,6 +858,7 @@ refer step 8
 (8)check for user creation 
 -you can use User.findById(user._id) and add reference and await  
 -.select("") we pass in a string and inside this string we mention what we don't need 
+-we are doing the above so that frontend only gets the necessary data 
 User.findById(user._id).select("-password -refreshToken")
 -add api error for the above 
 
@@ -836,3 +866,35 @@ User.findById(user._id).select("-password -refreshToken")
 -import ApiResponse into the above file 
 -write the below code 
 return res.status(201).json(new ApiResponse(200, createdUser, "User Registered Successfully"))
+
+
+
+
+
+
+Video 14 How to use Postman for Backend 
+
+(1)Send all the data inside using form-data
+-Make sure you are passing the field name as it is in the db. 
+for eg : fullName should be passed as fullName 
+
+(2)For adding avatar or coverImage use the drop down inside the key field and select "file"
+
+(3)Unlink files after uploading them on cloudinary.
+-inside cloudinary.js add the following before return response and remove the console.log above it.
+fs.unlinkSync(localFilePath)
+
+(4)Console log the following things 
+req.files 
+all the necessary stuff inside user.controller.js 
+
+(5)Search what Array.isArray() is and add it inside JavaScript.txt notes.
+
+(6)Create a new collection inside postman.
+-create a new folder called user and add the above request 
+
+(7)Inside Environments create a new variable 
+-give it a name "server"
+-paste the url upto /v1 as the initialValue and currentValue
+-select environment and the add the collection name inside it 
+-now henceforth before calling use {{server}}/user/register while sending a request 
