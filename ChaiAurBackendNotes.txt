@@ -698,6 +698,7 @@ PATCH - change part of resource
 4xx - Client Error (Client entered incorrect password, or token not sent, image resolution not correct)
 5xx - Server Error (Network broke, traffic in network)
 
+400-Username or email is required 
 
 
 
@@ -874,27 +875,229 @@ return res.status(201).json(new ApiResponse(200, createdUser, "User Registered S
 
 Video 14 How to use Postman for Backend 
 
-(1)Send all the data inside using form-data
+(1)Send all the data inside using form-data //
 -Make sure you are passing the field name as it is in the db. 
 for eg : fullName should be passed as fullName 
 
-(2)For adding avatar or coverImage use the drop down inside the key field and select "file"
+(2)For adding avatar or coverImage use the drop down inside the key field and select "file" //
 
-(3)Unlink files after uploading them on cloudinary.
+(3)Unlink files after uploading them on cloudinary. 
 -inside cloudinary.js add the following before return response and remove the console.log above it.
 fs.unlinkSync(localFilePath)
 
-(4)Console log the following things 
+(4)Console log the following things //
 req.files 
 all the necessary stuff inside user.controller.js 
 
 (5)Search what Array.isArray() is and add it inside JavaScript.txt notes.
 
-(6)Create a new collection inside postman.
+(6)Create a new collection inside postman.//
 -create a new folder called user and add the above request 
 
-(7)Inside Environments create a new variable 
+(7)Inside Environments create a new variable //
 -give it a name "server"
 -paste the url upto /v1 as the initialValue and currentValue
 -select environment and the add the collection name inside it 
 -now henceforth before calling use {{server}}/user/register while sending a request 
+
+
+
+
+
+Video 15 Access Refresh Token , MiddleWare and Cookies in Backend 
+
+Difference between Refresh Token and Access Token
+
+-Access Token are short lived 
+user validated using access token 
+
+-Refresh Token are Long lived 
+Saved in db and with user 
+
+Todos 
+(A)Using req.body get user data
+(1)Inside user.controller.js create a function called loginUser and wrap it inside asyncHandler. Export it.//
+-get username , password and email from req.body
+
+(B)Give access on the basis of username or password //
+-add a if condition if either username or email is not give then throw error that it is required to pass them
+
+(C)Find the user//
+(2)Send a query inside the db using "User" (which is a mongodb object) checking if a user with the same username or email exists using "$or" and store the result inside variable "user". Send an error 404 if user does not exist.
+
+(D)Password Check//
+(3)Using the newly created instance do the following.
+-use isPasswordCorrect method to check if password is correct or not and store it inside a new variable called isPasswordValid.
+-the new variable or reference will hold value of boolean  
+-Send error if password is incorrect.
+
+(E)Generate Access and Refresh Token 
+(4)Create a new async method called generateAccessAndRefreshToken which takes in userId 
+(5)Add a try catch block inside it. 
+(6)Inside try 
+-find the user by using "findById". Pass in userId and store the result in "user" variable //
+-add .generateAccessToken() and generateRefreshToken() on user instance and store them in variable called accessToken and refreshToken //
+
+-add the new refreshToken inside db using //
+We can save a property inside mongo by just doing 
+-instance.property = value 
+user.refreshToken = refreshToken 
+
+Then save the changes using the below //
+-save the changes in db using .save method and passing validateBeforeSave set as false . Use await but dont create instance 
+
+-return {accessToken, refreshToken}//
+
+(7)Inside catch(error)//
+-send a new ApiError saying "Something went wrong while generating access and refresh token"
+
+(8)Inside loginUser call the above created function and pass in userId using user instance also add await and save the result by destructing it//
+const {accessToken, refreshToken} 
+
+(9)Create a new instance of "User" called loggedInUser by using the following 
+-findById
+-.select("-password -refreshToken") //deselects all the not wanted 
+
+(F)Send cookie 
+(9)While sending a cookie we have to design an object called options//
+ 
+const options = {
+    httpOnly: true,
+    secure: true
+}
+
+the above is done so that no one can modify cookies from the frontend and can only customise them from the server side 
+
+(10)return the following from loginUser function //
+-return res.status(200).cookie()
+
+-it takes the following paramater key and value 
+key - "accessToken", 
+value - accessToken,
+options 
+
+do the same for refreshToken using .cookie method 
+.cookie("accessToken", accessToken, options)
+
+-send a json response using 
+.json(new ApiResponse(200, {
+    user: loggedInUser, accessToken, refreshToken
+},"User logged in successfully"))
+
+add . for every new method while returning 
+
+(11)User logout 
+-Inorder to logout a user we will have to first clear the cookies 
+-Reset refreshToken
+
+-Create a new function inside asyncHandler and store it in "logoutUser" 
+-export it 
+
+(12)Creating new auth middleware 
+-create a new file called "auth.middleware.js"
+-This middleware will verify if user exists or not by adding a new req.user method 
+
+-create a refrence called verifyJWT and wrap it with asyncHandler and also export it using named export 
+
+-inside the asyncHandler also add next along with req, res
+next is added because it is a middleWare
+
+-get token access //
+-Get access to cookies using req.cookies.cookieName which we specified step 10 as key 
+req.cookies?.accessToken
+ 
+-if user is sending custom header then we need to write it like this //
+const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "") 
+
+-add an api error if the above is not available by sending the following code 
+401, "Unauthorized request"
+
+-import jwt from "jsonwebtoken"
+
+-Inorder to verify the token we will use jwt.token() and store its reference inside "decodedToken" 
+jwt.verify() takes the following paramters 
+-token- pass in the same token generated above 
+-secret- select it from the .env file for accessToken 
+
+-import {User} from "user.model" //select correct path//
+-find user from db by using findById(decodedToken._id) and passing "_id" which we created before in user.model.js
+-remove password and refreshToken from the field 
+-add await and store refrence in variable called "user"
+-add ApiError for the above if it does not exist - 401 , "Invalid Access Token"
+
+-req.user = user 
+-next()
+
+-add all of the above inside try catch 
+-inside catch add ApiError - 401, error?.message || "Invalid Access Token"
+
+(13)Inside user.routes.js 
+
+-add a new route 
+router.route("/login").post(loginUser)
+
+-add a comment //secured routes 
+router.route("/logout").post(verifyJWT, logoutUser)
+//first middleware will run then logoutUser will run
+
+(14)Inside logoutUser 
+-using findByIdAndUpdate pass in the following 
+await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: { refreshToken: undefined },
+    },
+    { new: true } //will return new updated value
+  );
+
+Because we are talking with db use await 
+
+-copy paste options from the above steps 
+-return res.status(200).clearCookie("accessToken", options) // do the same for refreshToken 
+.json(new ApiResponse(200, {}, "User logged out"))
+
+
+
+
+
+📌 Video 16
+Access Token and Refresh Token in Backend 
+
+(A)Here we will get Refresh Token from user and check it with our backend if it is valid or not.
+(B)The frontend guy will create a endpoint which will be served to user in case accessToken expires. This endpoint will give new refreshToken which we can then compare with the one in our db.
+
+Steps 
+(1)Create controller for endpoint //
+create a new reference called "refreshAccessToken" by asyncHandler inside user.controller.js
+-export it  
+
+(2)Inside the asyncHandler //
+-access refreshToken from cookies which the user has and store it inside "incomingRefreshToken". Also give 401 "Unauthorized Request" if not found.
+req.cookies.refreshToken || req.body.refreshToken //second one is used when user is sending request via mobile 
+
+(3)Verfying the above token with the one in our db 
+-import jwt from "jsonwebtoken" //inside the above file 
+-use jwt.verify()
+
+(4)Using the above get user from db.
+-give 401, "Invalid Refresh Token" if user not found 
+
+(5)if cookie retrieved from user does not match with the one in db throw the following error 
+-401, Refresh Token is expired or used 
+
+(6)copy options from the above and paste it 
+
+(7)use generateAccessAndRefreshToken function to create new token 
+-save refreshToken as newRefreshToken
+
+(8)in response send the following  
+-status 200 
+-both the tokens using cookie()
+-.json
+
+(9)keep everything from step 3 till the last step inside try catch 
+-catch
+401, error?.message || "Invalid Refresh Token" 
+
+(10)create new route for the above 
+/refresh-token

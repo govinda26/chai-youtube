@@ -10,4 +10,15 @@ const storage = multer.diskStorage({
   },
 });
 
+// console.log(multer({ storage }));
+// Multer {
+//   storage: DiskStorage {
+//     getFilename: [Function: filename],
+//     getDestination: [Function: destination]
+//   },
+//   limits: undefined,
+//   preservePath: undefined,
+//   fileFilter: [Function: allowAll]
+// }
+
 export const upload = multer({ storage });

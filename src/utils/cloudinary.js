@@ -3,6 +3,7 @@ import fs from "fs";
 import dotenv from "dotenv";
 import path from "path";
 
+//path = path.resolve(current working directory + .env)
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 cloudinary.config({
