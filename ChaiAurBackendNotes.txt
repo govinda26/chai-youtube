@@ -1,3 +1,9 @@
+//videoController 
+//comments 
+//like
+//playlist 
+//tweet 
+
 Video 2 Deploy Backend Code in Production.
 Express is a package that handle's the request part of the the connection between computer and server.
 
@@ -536,7 +542,7 @@ userSchema.pre("save", function(){
 })
 
 (12)Inorder to not encrypt our password on every save we will use this.isModified() it takes field name as parameter //
--this.isModified("password") //it is passed in string 
+-if (!this.isModified("password")) //it is passed in string 
 
 (13)//
 -if this field is not modified then return next()
@@ -1101,3 +1107,78 @@ req.cookies.refreshToken || req.body.refreshToken //second one is used when user
 
 (10)create new route for the above 
 /refresh-token
+
+
+
+
+
+
+
+
+
+📌 Video 17
+Writing update controller 
+
+Logic:-
+
+
+Steps:-
+(1)Create a new model called subscription.model.js  //
+Only add type and ref for now along with timestamps.
+-All add comments 
+
+(2)controller for changing current password //
+
+-take oldPassword , newPassword from user 
+
+-because the user need's to be logged in to change the password get the details about user from middleWare
+
+-find user using userid 
+
+-check if old password received from user is correct with the one received from above 
+throw error isPasswordCorrect 400, "Invalid Old Password"
+also use await 
+
+-set new password as the user.password 
+also save it using .save also add validateBeforeSave:false
+no need for reference 
+
+-return status(200) json(200, {}, "Password changed Successfully")
+
+(3)create controller for updateAccountDetails //
+-if you want to update any files then it is always recommended to create another controller 
+
+-get fullName and email and send error if not available (400, "All fields are required")
+
+-using findByIdAndUpdate() update both of the above values 
+it takes three arguments 
+-user id 
+-{
+    //here we have to use different mongoDb operators 
+    $set:{}
+} 
+-{new: true} //after updating it returns the new value 
+-don't include the password field while creating reference for the above.
+
+-send the above reference as json "Account details updated successfully"
+
+(4)Updating files 
+-create a new controller called updateUserAvatar 
+
+-get new image path from req.file (we are only using "file" because we don't need "files", same will be done when we add middleware only use "upload.field")
+save it in ref avatarLocalPath 
+400, "Avatar file is missing"
+
+-uplaod on cloudinary 
+400, "Error while uploading on avatar"
+
+-using findByIdAndUpdate update the above 
+avatar: avatar.url  
+deselect -password 
+
+-return the above reference 
+200, "Avatar image updated successfully"
+
+-export the above 
+
+-do the same for coverImage 
