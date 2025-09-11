@@ -1181,4 +1181,225 @@ deselect -password
 
 -export the above 
 
+//todo: 
+create utility function to delete old avatar image 
+-by taking old local avatar path on cloudinary create a utility function to delete it from cloud 
+
 -do the same for coverImage 
+
+
+
+
+
+
+📌 Video 18
+Understand Subscription Schema 
+
+whenever channel gets subscribed a new document is created 
+
+-Inorder to get all the subscribers of a particular channel we will do the following 
+select all the documents which have the channel name we want  
+
+
+
+
+
+
+
+
+
+📌 Video 19
+🧠 Quick mental model
+
+1️⃣ req.params → comes from :placeholders in the URL path.
+
+2️⃣ req.query → comes from ?key=value query strings.
+
+3️⃣ req.body → comes from JSON/form data in the request body.
+
+📘 SQL Joins
+Joins help us combine data from two or more tables using a related column (like id, user_id, etc).
+
+Mongo Db Aggregration Pipeline 
+
+-Aggregration pipeline consists of one or more stages.
+-Each stage performs an operation on the input doucments. 
+ 
+.aggregate(
+    [
+        //every object is a stage 
+        //stage 1
+        {
+            //filters documents based on a specific query. Matched documents are passed to next pipeline stage.
+            $match:{
+                fieldName: value;
+            },
+            //performs left outer join to a collection 
+            $lookup: {
+                from: "from where you want join",
+                localField: "field at local or primary table",
+                foreignField: "field at foriegn table", 
+                as: "result" //will return an array   
+            }
+        },
+        //stage 2 
+        {
+            //adds new fields and we can also compute them 
+            $addFields:{
+                fieldName: {
+                    //method 1 
+                    //this will get the result array from the above stage and give the first element
+                    $first: "$result",
+
+                    //method 2 
+                    //this will give array element based on the number [" ", element_position] 
+                    $arrayElemAt: ["$result", 0] 
+                }
+            }
+        },
+        //stage 3 
+        {
+             {
+                //gives all the mentioned fields in the final document 
+                $project: {
+                    "title": 1,
+                    
+                    // "author_fields.name": 1,
+                    // "author_fields.birth_year": 1,
+                           
+                    //flattened at root
+                    name:"$author_fields.name",
+                    birth_year:"$author_fields.birth_year"
+                },
+            },
+        }
+    ]
+)
+
+(1)Create a new controller called getUserChannelProfile
+
+(2)using params get username and add error check if it not exists 
+400, username is missing 
+also use username?.trim()
+
+(3)save it in reference called "channel" 
+User.aggregate([{
+    $match: {
+        username: username?.toLowerCase()
+    },
+    {
+        $lookup: {
+            from: "subscriptions",
+            localField: "_id",
+            foreignField: "channel",
+            as: "subscribers"
+        }
+    },
+    {
+        //do the same for subscribedTo,
+    },
+    {
+        $addFields: 
+        {
+            subscribersCount:
+                {
+                    $size: "$subscribers"
+                },
+            channelsSubscribedToCount: 
+                {
+                    $size: "$subscribedTo"
+                },
+            isSubscribed:
+                {
+                    $cond:
+                        {
+                            if: {$in: [req.user?._id, "$subscribers.subscriber"]},
+                            then: true,
+                            else: false 
+                        }
+                }
+        }
+    },
+    {
+        //will only give specific values eg value want to pass : 1 
+        $project: {
+            fullName: 1,
+            Username: 1,
+            subscribersCount: 1, 
+            channelsSubscribedToCount: 1,
+            isSubscribed: 1,
+            avatar: 1,
+            coverImage: 1,
+            email: 1,
+        }
+    }
+    }
+])
+
+(4)Add error is channel there is nothing inside channel array 
+!channel?.length
+404, "channel does not exist"
+
+return res
+.status(200)
+.json(
+    new ApiResponse(200, channel[0], "User Channel fetched Successfully")
+)
+
+
+
+
+
+📌 Video 20
+Sub pipelines and routes 
+ 
+(1)Create a controller called "getWatchHistory"
+
+(2)create a reference called user for User.aggregate
+
+(3)Get logged in user by doing the following:-
+Create a mongoose id using 
+$match: { new mongoose.Types.ObjectId(pass in the id) } 
+ 
+(4)write a lookup for getting "watchHistory" 
+
+(5)below the above lookup add another and save it as "owner":-
+pipeline: [
+    {
+        $lookup  
+    }
+]
+
+(6)Add another pipeline for the above 
+pipeline: [
+    {
+        $lookup:{
+            ...,
+            pipeline: [
+                {
+                    $project:{
+                        //all the data mentioned here will be saved in owner 
+                        fullName:1,
+                        username:1,
+                        avatar:1
+                    }
+                },
+                {
+                    $addFields:{
+                        //overwriting existing field 
+                        owner:{
+                            $first: "$owner"
+                        }
+                    }
+                }
+            ]
+        }  
+    }
+]
+
+(7)return res.status(200).json(new ApiResponse(200, user[0].watchHistory, "Watch History Fetched successfully" ))
+
+(8)change route for 
+userAvatar 
+upload.single("avatar"), instead of fields 
+add route for the above
