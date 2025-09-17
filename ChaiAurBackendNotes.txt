@@ -1403,3 +1403,59 @@ pipeline: [
 userAvatar 
 upload.single("avatar"), instead of fields 
 add route for the above
+
+
+Mongo Db 
+Mongo- Huge 
+Instead of tables we have "Collections"
+Instead of Rows we have "Documents"
+There is no Schema in MongoDb which means if we have one document which has 4 fields we can add another with 5 fields in next insertion.
+
+👉Creating dbs 
+use db_name
+
+👉Creating Collection 
+inside the above db 
+db.collection_name
+
+👉Inserting doucments
+db.collection_name.insertOne({name:"Ram", age:12})
+
+👉Display all the documents in the mongo Shell 
+db.collection_name.find()
+db.collection_name.find().toArray() //will return all the documents 
+
+👉Update document 
+db.collection_name.updateOne({filter}, {$set:{whatever you want to update}})
+db.collection_name.updateMany({filter}, {$set:{whatever you want to update}})
+relaceOne(filter, data, options)
+
+👉find documents with same property 
+db.collection_name.find({hobbies:"cooking"}) //will return all the matching documents 
+returns '[ ]' if found 
+reurns nothing if not found 
+
+db.collection_name.findOne({hobbies:"cooking"}) //will return only the first one or one 
+returns '{ }' if found 
+returns 'null' if not found 
+
+👉creating documents 
+insertOne(data, options)
+insertMany(data, options) 
+db.collection_name.insertMany([ {}, {}, {} ]) //always give them inside an array 
+
+👉delete 
+deleteOne(filter, options)
+deleteMany(filter, options)
+db.collection_name.deleteMany({}) //deletes everything from collection 
+
+👉count 
+db.collection_name.find({hobbies:"cooking"}).count() 
+db.collection_name.find({hobbies:"cooking"}).limit(2) 
+
+👉getting specific values from collection 
+db.collection_name.find({}, {value:1, value:0}) 
+
+👉Delete Db in mongoDb 
+db.dropDatabase()
+db.collection_name.drop()
