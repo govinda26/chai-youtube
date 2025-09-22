@@ -80,8 +80,8 @@ class ApiError extends Error {
 }
 
 //Helps in creating new erros.
-const error = new ApiError("404", "User not found");
-console.log(error);
+// const error = new ApiError("404", "User not found");
+// console.log(error);
 
 //Instead of crashing and stopping the flow of the program Async handler helps in catching the error.
 //Step 1:Creating asyncHandler
@@ -123,4 +123,12 @@ const registerUser = asyncHandler(async () => {
   }
 });
 
-registerUser();
+// registerUser();
+
+const url =
+  "http://res.cloudinary.com/youtubechaiaurcode/image/upload/v1757064149/gqikq0nkw9plox5unjfm.jpg";
+
+const slicedUrl = url.slice(-24);
+// console.log(slicedUrl);
+console.log(slicedUrl.length);
+console.log(slicedUrl.slice(0, 20));

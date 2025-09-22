@@ -92,19 +92,30 @@ Following can be used for Data modelling
 -Eraser.io 
 
 (1)Before building any kind of project always know what kind of data points will be needed for the data.
+
 (2)Install mongoose using "npm i mongoose" inside -stackblitz //
 -mongoose is a library that helps you interact with mongoDb database
+
 (3)Create a new folder called models. Inside the same folder create a new folder called todos.//
+
 (4)Inside todos create a file called "user.models.js" always use .models.js while creating files in this folder. It basically means it denotes model.//
+
 (5)Also do the same for todos and sub_todos//
+
 (6)import mongoose from "mongoose"//
+
 (7)Use "new" while creating schema in mongoose.
 new mongoose.Schema()//
+
 (8)This function takes an object.//
 const userSchema = new mongoose.Schema({})//
+
 (9)Then export const User = mongoose.model() //this takes two parameter (name of the model, on basis of whose schema should i make the model)//
+
 (10)export const User = mongoose.model("User", userSchema)//
+
 (11)In mongoDB "User" get's converted into LowerCase and plural form. "User" = users //
+
 (12)Inside mongoose.Schema({ 
     username:{
                 type:String, 
@@ -119,13 +130,16 @@ const userSchema = new mongoose.Schema({})//
         }
     ) 
 (13)We can pass timestamps to add createdAt and updatedAt 
+
 (14)Pass them inside mongoose.Schema({}, {timestamps:true}) //its timestamp's not timestamp 
+
 (15)new mongoose.Schema({
     complete:{
         type:Boolean,
         default:false
     }
 })//
+
 (16)Creating relation's between two schemas.
 We need two things type and reference. 
 new mongoose.Schema({
@@ -134,6 +148,7 @@ new mongoose.Schema({
         ref: "User", //the name that we give when creating model should be passed here always.
     }
 })
+
 (17)We can add array of sub_todos
 new mongoose.Schema({
     sub_todos:[{
@@ -141,6 +156,7 @@ new mongoose.Schema({
         ref:"SubTodo",
     }]
 })//
+
 (18)Create schema for sub_todos that includes content, complete, createdBy.//
 
 
@@ -1459,3 +1475,8 @@ db.collection_name.find({}, {value:1, value:0})
 👉Delete Db in mongoDb 
 db.dropDatabase()
 db.collection_name.drop()
+
+👉$lookup 
+When we use $lookup MongoDB looks at left collection (the one you start from) and matches them in the right collection.
+if it finds a match it goes inside array , if it does not then also it is kept inside empty array.
+This is because it is left join.  
