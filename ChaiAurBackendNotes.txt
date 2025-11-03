@@ -722,6 +722,64 @@ PATCH - change part of resource
 
 400-Username or email is required 
 
+🔴 Client Errors (4xx)
+
+These mean client (frontend or user) did something wrong
+
+400 Bad Request → Input is invalid (missing required field, wrong data format).
+"All fields are required", "Invalid videoId"
+
+401 Unauthorized → User is not logged in / missing token.
+"Please login first"
+
+403 Forbidden → User is logged in but doesn’t have permission.
+"You cannot delete someone else’s comment"
+
+404 Not Found → Resource doesn’t exist.
+"Video not found", "Comment does not exist"
+
+409 Conflict → Data conflict.
+"Email already exists", "Username taken"
+
+🔵 Server Errors (5xx)
+
+These mean your backend messed up.
+
+500 Internal Server Error → Generic fallback when you don’t know what went wrong.
+"Something went wrong"
+
+502 Bad Gateway / 503 Service Unavailable → Rare for APIs, used when your DB/other service is down.
+
+🟢 Success Codes (2xx)
+
+200 OK → Normal successful GET, PUT, DELETE.
+"Video updated successfully", "Comments fetched successfully"
+
+201 Created → When you create a new resource.
+"User registered successfully", "Video uploaded successfully"
+
+204 No Content → Success but no data to return (rare).
+
+
+
+
+✅ Easy Way to Remember
+
+Think of CRUD and map status codes:
+
+C (Create) → 201 Created
+R (Read) → 200 OK (or 404 if not found)
+U (Update) → 200 OK (or 400/403/404 depending on error)
+D (Delete) → 200 OK (or 404 if not found)
+
+And for errors:
+Missing / wrong input → 400
+Auth problem → 401
+Permission problem → 403
+Not found → 404
+Duplicate / conflict → 409
+Server crash → 500
+
 
 
 
@@ -1480,3 +1538,101 @@ db.collection_name.drop()
 When we use $lookup MongoDB looks at left collection (the one you start from) and matches them in the right collection.
 if it finds a match it goes inside array , if it does not then also it is kept inside empty array.
 This is because it is left join.  
+
+👉Arrays 
+👉Finding elements inside Arrays 
+arrayName: { $elemMatch: { fieldName: value  } }
+
+👉Updating Arrays 
+Keep note of three things while updating arrays 
+(1)Will only update first matched 
+$set : { "arrayName.$" : { name: "Govinda"  } }
+
+-update the above field 
+$set : { "arrayName.$.age" : { age: "25"  } }
+{
+    name:"Govinda",
+    age:"25"
+}
+
+(2)Will update all the matched elements 
+$set : { "arrayName.$[e]" : { name: "Govinda"  } }
+//you can write anything instead of e - i,x,var...
+
+(3)Will update all the elements regardless of match 
+$set : { "arrayName.$[]" : { name: "Govinda"  } }
+
+👉Adding element inside array 
+$push : { arrayName: {  } }
+
+//if the element is already added and we dont want duplicate then we can use 
+$addToSet instead of the above
+
+👉Removing element inside array 
+$pull : { arrayName: { } }
+
+//Removing last element from the array 
+$pop : { arrayName: { 1 } } 
+
+
+👉Indexing fields in mongo 
+db.collectionName.createIndex(
+    {
+        fieldName: "text"
+    }
+)
+
+db.collectionName.find(
+    {
+        $text:{
+            $search:"youtube"
+        }
+    }
+)
+
+Sorting 
+👉Sorting in ascending or descanding 
+db.videos.find().sort({duration:-1})
+//-1 for descanding and 1 for ascending 
+
+👉facet 
+$facet lets you run multiple mini pipelines (sub-queries) in parallel — inside a single aggregation query.
+
+👉Grouping 
+{
+    $group: {
+        _id: "$whatYouWantToGroupWith", //age, profession 
+        field1:{
+            $push: "$whatYouWant"
+        }
+    }
+} 
+
+👉Turn array elements into individual objects 
+$unwind: "$arrayName" 
+
+👉replaceRoot 
+replaces the entire document with it 
+{
+    //removes everything except for result object
+    $replaceRoot: {
+      newRoot: "$result"
+    }
+}
+
+
+{
+    "email":"Govi2604@gmail.com",
+    "username":"govi2604",
+    "password":"passkey@12345"
+}
+{
+    "email": 'Parrot@gmail.com',
+    "username": 'Parrot',
+    "password": 'passkey@123456'
+}
+{
+    "email":"John@gmail.com",
+    "username":"John",
+    "password":"passkey@1234567"
+}

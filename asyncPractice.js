@@ -52,9 +52,11 @@
 // asyncResult.then((response) => console.log("Async Result:", response));
 // asyncResult.catch((error) => console.log(error));
 
-const Strings = ["Abc", "Def", "Ghi", ""];
+const Strings = ["Abc", "Def", "Ghi      adas    ", ""];
 
-// Strings.some((str) => str?.trim() === "");
+// const condition = Strings.some((str) => str?.trim() === "");
+// console.log(condition);
+// Strings.some((str) => console.log(str?.trim()));
 
 //Api Error Handling
 class ApiError extends Error {
@@ -125,10 +127,6 @@ const registerUser = asyncHandler(async () => {
 
 // registerUser();
 
-const url =
-  "http://res.cloudinary.com/youtubechaiaurcode/image/upload/v1757064149/gqikq0nkw9plox5unjfm.jpg";
+const toggleSwitch = false;
 
-const slicedUrl = url.slice(-24);
-// console.log(slicedUrl);
-console.log(slicedUrl.length);
-console.log(slicedUrl.slice(0, 20));
+console.log(!toggleSwitch);

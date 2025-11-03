@@ -259,7 +259,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     { $set: { email: email, userName: userName } },
-    { new: true }
+    { new: true } //return the updated document after the update has been applied
   ).select("-password");
 
   return res

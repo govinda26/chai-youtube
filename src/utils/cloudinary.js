@@ -40,8 +40,7 @@ const deleteOnCloudinary = async (oldPublicId) => {
     });
     return response;
   } catch (error) {
-    // return null;
-    console.log("Delete Error: ", error);
+    return null;
   }
 };
 
